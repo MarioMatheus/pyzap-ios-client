@@ -8,13 +8,24 @@
 
 import Foundation
 
-struct ZapMessage {
-    let sender: String
-    let receiver: String
-    let content: String
+class ZapMessage {
+    var sender: String
+    var receiver: String
+    var content: String
+    
+    init(sender: String, receiver: String, content: String) {
+        self.sender = sender
+        self.receiver = receiver
+        self.content = content
+    }
 }
 
-struct ZapUser {
-    let name: String
-    let messages: [ZapMessage]
+class ZapUser {
+    var name: String
+    var messages: [ZapMessage]
+    
+    init(name: String, messages: [ZapMessage]) {
+        self.name = name
+        self.messages = messages
+    }
 }

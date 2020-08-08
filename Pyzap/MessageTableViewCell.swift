@@ -56,6 +56,21 @@ class MessageTableViewCell: UITableViewCell {
         }
     }
     
+    lazy var rightAlignmentContraint = bubbleBackground.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+    lazy var leftAlignmentContraint = bubbleBackground.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16)
+    
+    var alignmentRight = true {
+        didSet {
+            if alignmentRight {
+                rightAlignmentContraint.isActive = true
+                leftAlignmentContraint.isActive = false
+            } else {
+                leftAlignmentContraint.isActive = true
+                rightAlignmentContraint.isActive = false
+            }
+        }
+    }
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -75,9 +90,11 @@ class MessageTableViewCell: UITableViewCell {
     }
     
     func setupConstraints() {
+        
+        rightAlignmentContraint.isActive = true
+        
         NSLayoutConstraint.activate([
             bubbleBackground.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-            bubbleBackground.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             bubbleBackground.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/1.5),
             bubbleBackground.bottomAnchor.constraint(equalTo: bottomAnchor,constant: -8),
             

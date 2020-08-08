@@ -13,7 +13,8 @@ class DetailViewController: UIViewController, UITableViewDataSource {
     @IBOutlet weak var chatTableView: UITableView!
     @IBOutlet weak var messageTextField: UITextField!
     
-    var user: ZapUser?
+    var me: ZapUser?
+    var friend: ZapUser?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -32,18 +33,28 @@ class DetailViewController: UIViewController, UITableViewDataSource {
     }
 
     @IBAction func sendButtonDidPressed(_ sender: Any) {
-        print("Send Button Did Pressed")
+        if let me = me, let friend = friend {
+            let zapMessage = ZapMessage(sender: me.name, receiver: friend.name, content: messageTextField?.text ?? "😐")
+            me.messages.append(zapMessage)
+            friend.messages.append(zapMessage)
+            chatTableView.reloadData()
+            chatTableView.scrollToRow(at: [0, friend.messages.count - 1], at: .top, animated: true)
+            messageTextField.text = ""
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return user?.messages.count ?? 0
+        return friend?.messages.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCell", for: indexPath) as? MessageTableViewCell else {
             return UITableViewCell()
         }
-        cell.message = user?.messages[indexPath.row]
+        cell.message = friend?.messages[indexPath.row]
+        let isMe = cell.message?.sender == me?.name
+        cell.alignmentRight = isMe
+        cell.sender.textColor = isMe ? .yellow : .cyan
         return cell
     }
     

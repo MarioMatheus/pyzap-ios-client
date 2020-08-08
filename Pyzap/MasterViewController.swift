@@ -12,10 +12,12 @@ class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     
-    var users: [ZapUser] = [
+    var me = ZapUser(name: "Mario", messages: [])
+    
+    var friends: [ZapUser] = [
         ZapUser(name: "Foo", messages: [
-            ZapMessage(sender: "Foo", receiver: "Bar", content: "hey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listen"),
-            ZapMessage(sender: "Bar", receiver: "Foo", content: "iaiiii meu boy")
+            ZapMessage(sender: "Foo", receiver: "Mario", content: "hey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listen"),
+            ZapMessage(sender: "Foo", receiver: "Mario", content: "iaiiii meu boy")
         ]),
         ZapUser(name: "Bar", messages: [])
     ]
@@ -26,11 +28,14 @@ class MasterViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewZapUser(_:)))
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewZapFriend(_:)))
         navigationItem.rightBarButtonItem = addButton
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
+        }
+        requestUserName("Digite o apelido no qual vc será reconhecido no pychat") { name in
+            self.me = ZapUser(name: name, messages: [])
         }
     }
 
@@ -38,12 +43,34 @@ class MasterViewController: UITableViewController {
         clearsSelectionOnViewWillAppear = splitViewController!.isCollapsed
         super.viewWillAppear(animated)
     }
+    
+    func requestUserName(_ message: String, _ completion: @escaping (String) -> Void) {
+        let alert = UIAlertController(title: "Apelido", message: message, preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "apelido"
+        }
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            alert.dismiss(animated: true) {
+                if let nameText = alert.textFields?.first?.text, nameText != "" {
+                    completion(nameText)
+                } else {
+                    self.requestUserName(message, completion)
+                }
+            }
+        })
+        
+        present(alert, animated: true, completion: nil)
+    }
 
     @objc
-    func insertNewZapUser(_ sender: Any) {
-        users.insert(ZapUser(name: "Jovi", messages: []), at: 0)
-        let indexPath = IndexPath(row: 0, section: 0)
-        tableView.insertRows(at: [indexPath], with: .automatic)
+    func insertNewZapFriend(_ sender: Any) {
+        requestUserName("Digite o apelido de quem vc deseja conversar") { name in
+            self.friends.insert(ZapUser(name: name, messages: []), at: 0)
+            let indexPath = IndexPath(row: 0, section: 0)
+            self.tableView.insertRows(at: [indexPath], with: .automatic)
+        }
     }
 
     // MARK: - Segues
@@ -51,9 +78,10 @@ class MasterViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
-                let user = users[indexPath.row]
+                let friend = friends[indexPath.row]
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
-                controller.user = user
+                controller.me = me
+                controller.friend = friend
                 controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
                 detailViewController = controller
@@ -68,14 +96,14 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users.count
+        return friends.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let user = users[indexPath.row]
-        cell.detailTextLabel!.text = user.messages.isEmpty ? "No Content" : user.messages.last?.content
-        cell.textLabel!.text = user.name
+        let friend = friends[indexPath.row]
+        cell.detailTextLabel!.text = friend.messages.isEmpty ? "Sem mensagens" : friend.messages.last?.content
+        cell.textLabel!.text = friend.name
         return cell
     }
 
