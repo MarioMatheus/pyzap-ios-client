@@ -16,6 +16,7 @@
 		F21EB68524DE25F800DDE29D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F21EB68324DE25F800DDE29D /* LaunchScreen.storyboard */; };
 		F21EB69024DE38BF00DDE29D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21EB68F24DE38BF00DDE29D /* Models.swift */; };
 		F21EB69224DE53F600DDE29D /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21EB69124DE53F600DDE29D /* MessageTableViewCell.swift */; };
+		F21EB69424DE762500DDE29D /* ServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21EB69324DE762500DDE29D /* ServerManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		F21EB68624DE25F800DDE29D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F21EB68F24DE38BF00DDE29D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		F21EB69124DE53F600DDE29D /* MessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
+		F21EB69324DE762500DDE29D /* ServerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 				F21EB68624DE25F800DDE29D /* Info.plist */,
 				F21EB68F24DE38BF00DDE29D /* Models.swift */,
 				F21EB69124DE53F600DDE29D /* MessageTableViewCell.swift */,
+				F21EB69324DE762500DDE29D /* ServerManager.swift */,
 			);
 			path = Pyzap;
 			sourceTree = "<group>";
@@ -151,6 +154,7 @@
 				F21EB67924DE25F600DDE29D /* SceneDelegate.swift in Sources */,
 				F21EB67B24DE25F600DDE29D /* MasterViewController.swift in Sources */,
 				F21EB67D24DE25F600DDE29D /* DetailViewController.swift in Sources */,
+				F21EB69424DE762500DDE29D /* ServerManager.swift in Sources */,
 				F21EB69024DE38BF00DDE29D /* Models.swift in Sources */,
 				F21EB69224DE53F600DDE29D /* MessageTableViewCell.swift in Sources */,
 			);

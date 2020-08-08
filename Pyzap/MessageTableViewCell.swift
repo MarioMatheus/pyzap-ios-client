@@ -95,7 +95,9 @@ class MessageTableViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             bubbleBackground.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-            bubbleBackground.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/1.5),
+            bubbleBackground.widthAnchor.constraint(equalToConstant:
+                UIScreen.main.bounds.width > 375 ? 400 : UIScreen.main.bounds.width/1.5
+            ),
             bubbleBackground.bottomAnchor.constraint(equalTo: bottomAnchor,constant: -8),
             
             sender.topAnchor.constraint(equalTo: bubbleBackground.topAnchor, constant: 3),

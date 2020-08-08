@@ -14,7 +14,11 @@ class DetailViewController: UIViewController, UITableViewDataSource {
     @IBOutlet weak var messageTextField: UITextField!
     
     var me: ZapUser?
-    var friend: ZapUser?
+    var friend: ZapUser? {
+        didSet {
+            self.navigationItem.title = "\(friend == nil ? "Chat" : friend!.name)"
+        }
+    }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -30,16 +34,33 @@ class DetailViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        chatTableView.reloadData()
     }
 
     @IBAction func sendButtonDidPressed(_ sender: Any) {
         if let me = me, let friend = friend {
-            let zapMessage = ZapMessage(sender: me.name, receiver: friend.name, content: messageTextField?.text ?? "😐")
+            let message = messageTextField?.text ?? "😐"
+            let zapMessage = ZapMessage(sender: me.name, receiver: friend.name, content: message)
+            sendMessageToServer(zapMessage)
             me.messages.append(zapMessage)
             friend.messages.append(zapMessage)
             chatTableView.reloadData()
             chatTableView.scrollToRow(at: [0, friend.messages.count - 1], at: .top, animated: true)
             messageTextField.text = ""
+        }
+    }
+    
+    func sendMessageToServer(_ zapMessage: ZapMessage) {
+        let zap = [
+            "sender": zapMessage.sender,
+            "receiver": zapMessage.receiver,
+            "content": zapMessage.content
+        ]
+        do {
+            let json = try JSONEncoder().encode(zap)
+            ServerManager.shared.send(json)
+        } catch {
+            print("Mensagem não enviada")
         }
     }
     

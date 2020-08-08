@@ -8,22 +8,15 @@
 
 import UIKit
 
-class MasterViewController: UITableViewController {
-
+class MasterViewController: UITableViewController, ServerDelegate {
+    
     var detailViewController: DetailViewController? = nil
     
-    var me = ZapUser(name: "Mario", messages: [])
-    
-    var friends: [ZapUser] = [
-        ZapUser(name: "Foo", messages: [
-            ZapMessage(sender: "Foo", receiver: "Mario", content: "hey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listenhey listen"),
-            ZapMessage(sender: "Foo", receiver: "Mario", content: "iaiiii meu boy")
-        ]),
-        ZapUser(name: "Bar", messages: [])
-    ]
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+    var friends: [ZapUser] = []
+    var me: ZapUser? {
+        didSet {
+            self.navigationItem.title = "Conversas\(me == nil ? "" : " de \(me!.name)")"
+        }
     }
 
     override func viewDidLoad() {
@@ -34,9 +27,7 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
-        requestUserName("Digite o apelido no qual vc será reconhecido no pychat") { name in
-            self.me = ZapUser(name: name, messages: [])
-        }
+        requestConnection()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -44,7 +35,42 @@ class MasterViewController: UITableViewController {
         super.viewWillAppear(animated)
     }
     
-    func requestUserName(_ message: String, _ completion: @escaping (String) -> Void) {
+    func requestConnection() {
+        ServerManager.shared.delegate = self
+        ServerManager.shared.setupNetworkCommunication()
+    }
+    
+    func openCompleted() {
+        requestUserName("Digite o apelido no qual vc será reconhecido no pychat") { name in
+            if let data = name.data(using: .utf8) {
+                ServerManager.shared.send(data)
+                self.me = ZapUser(name: name, messages: [])
+            }
+        }
+    }
+    
+    func errorOccurred() {
+        let alert = UIAlertController(title: "Sem Conexão", message: """
+            Houve um erro ao tentar se comunicar com o servidor, tente novamente mais tarde
+        """, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func received(message: ZapMessage) {
+        print(message.content)
+        let friend = self.friends.filter({ $0.name == message.sender }).first
+        if let friend = friend {
+            friend.messages.append(message)
+        } else {
+            self.friends.insert(ZapUser(name: message.sender, messages: [message]), at: 0)
+        }
+        self.detailViewController?.chatTableView.reloadData()
+        self.tableView.reloadData()
+    }
+    
+    func requestUserName(_ message: String, _ cancelButton: Bool = false, _ completion: @escaping (String) -> Void) {
         let alert = UIAlertController(title: "Apelido", message: message, preferredStyle: .alert)
         
         alert.addTextField { textField in
@@ -56,17 +82,21 @@ class MasterViewController: UITableViewController {
                 if let nameText = alert.textFields?.first?.text, nameText != "" {
                     completion(nameText)
                 } else {
-                    self.requestUserName(message, completion)
+                    self.requestUserName(message, cancelButton,completion)
                 }
             }
         })
+        
+        if cancelButton {
+            alert.addAction(UIAlertAction(title: "Cancelar", style: .destructive, handler: nil))
+        }
         
         present(alert, animated: true, completion: nil)
     }
 
     @objc
     func insertNewZapFriend(_ sender: Any) {
-        requestUserName("Digite o apelido de quem vc deseja conversar") { name in
+        requestUserName("Digite o apelido de quem vc deseja conversar", true) { name in
             self.friends.insert(ZapUser(name: name, messages: []), at: 0)
             let indexPath = IndexPath(row: 0, section: 0)
             self.tableView.insertRows(at: [indexPath], with: .automatic)
@@ -106,21 +136,10 @@ class MasterViewController: UITableViewController {
         cell.textLabel!.text = friend.name
         return cell
     }
-
-//    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        // Return false if you do not want the specified item to be editable.
-//        return true
-//    }
-//
-//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            users.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//        } else if editingStyle == .insert {
-//            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-//        }
-//    }
-
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
 }
 

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ZapMessage {
+class ZapMessage: Codable {
     var sender: String
     var receiver: String
     var content: String
