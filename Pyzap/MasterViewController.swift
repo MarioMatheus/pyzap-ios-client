@@ -109,6 +109,7 @@ class MasterViewController: UITableViewController, ServerDelegate {
             }
             self?.detailViewController?.chatTableView.reloadData()
             self?.tableView.reloadData()
+            self?.detailViewController?.scrollRow()
         }
     }
     

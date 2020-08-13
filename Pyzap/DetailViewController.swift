@@ -48,9 +48,13 @@ class DetailViewController: UIViewController, UITableViewDataSource {
             friend.messages.append(zapMessage)
             chatTableView.reloadData()
             contatosTableView?.reloadData()
-            chatTableView.scrollToRow(at: [0, friend.messages.count - 1], at: .top, animated: true)
+            scrollRow()
             messageTextField.text = ""
         }
+    }
+    
+    func scrollRow() {
+        chatTableView.scrollToRow(at: [0, (friend?.messages.count ?? 1) - 1], at: .top, animated: true)
     }
     
     func sendMessageToServer(_ zapMessage: ZapMessage) {
