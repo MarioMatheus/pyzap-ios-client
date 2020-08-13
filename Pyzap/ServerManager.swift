@@ -9,6 +9,7 @@
 import Foundation
 
 protocol ServerDelegate: class {
+    func endEncountered()
     func openCompleted()
     func errorOccurred()
     func received(message: ZapMessage)
@@ -18,7 +19,7 @@ class ServerManager: NSObject {
 
     static let shared = ServerManager()
     
-    static let IP_HOST = "192.168.15.4"
+    static let IP_HOST = "localhost"
     static let PORT = 9999
     
     weak var delegate: ServerDelegate?
@@ -84,6 +85,8 @@ extension ServerManager: StreamDelegate {
             delegate?.openCompleted()
         case .errorOccurred:
             delegate?.errorOccurred()
+        case .endEncountered:
+            delegate?.endEncountered()
         case .hasSpaceAvailable:
             print("has space available")
         default:

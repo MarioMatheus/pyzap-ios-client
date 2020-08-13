@@ -157,7 +157,9 @@
                             <outlet property="delegate" destination="7bK-jq-Zjz" id="RA6-mI-bju"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Conversas" id="Zdf-7t-Un8"/>
+                    <navigationItem key="navigationItem" title="Conversas" id="Zdf-7t-Un8">
+                        <barButtonItem key="backBarButtonItem" title="Conversas" id="akB-wM-uDd"/>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rux-fX-hf1" sceneMemberID="firstResponder"/>
             </objects>
@@ -190,6 +192,6 @@
         <image name="zap-bg" width="700" height="1400"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Tll-UG-LXB"/>
+        <segue reference="6S0-TO-JiA"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -21,6 +21,7 @@ class MasterViewController: UITableViewController, ServerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.configureConnectionBarButton()
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewZapFriend(_:)))
         navigationItem.rightBarButtonItem = addButton
         if let split = splitViewController {
@@ -35,39 +36,80 @@ class MasterViewController: UITableViewController, ServerDelegate {
         super.viewWillAppear(animated)
     }
     
+    func configureConnectionBarButton() {
+        let leftBarButton = me != nil
+            ? UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(stopConnection))
+            : UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(requestConnection))
+        
+        navigationItem.leftBarButtonItem = leftBarButton
+    }
+    
+    @objc
     func requestConnection() {
         ServerManager.shared.delegate = self
-        ServerManager.shared.setupNetworkCommunication()
+        DispatchQueue.global(qos: .utility).async {
+            ServerManager.shared.setupNetworkCommunication()
+            RunLoop.current.run()
+        }
+    }
+    
+    @objc
+    func stopConnection() {
+        let alert = UIAlertController(
+            title: "Desconectar",
+            message: "Tem certeza que deseja ficar offline? Você não poderá mais enviar ou receber mensagens",
+            preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            alert.dismiss(animated: true) {
+                ServerManager.shared.stopChatSession()
+                self.me = nil
+                self.configureConnectionBarButton()
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .destructive, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
     
     func openCompleted() {
-        requestUserName("Digite o apelido no qual vc será reconhecido no pychat") { name in
-            if let data = name.data(using: .utf8) {
-                ServerManager.shared.send(data)
-                self.me = ZapUser(name: name, messages: [])
+        DispatchQueue.main.async { [weak self] in
+            self?.requestUserName("Digite o apelido no qual vc será reconhecido no pychat") { name in
+                if let data = name.data(using: .utf8) {
+                    ServerManager.shared.send(data)
+                    self?.me = ZapUser(name: name, messages: [])
+                    self?.configureConnectionBarButton()
+                }
             }
         }
     }
     
+    func endEncountered() {
+        print("End Encountered")
+    }
+    
     func errorOccurred() {
-        let alert = UIAlertController(title: "Sem Conexão", message: """
-            Houve um erro ao tentar se comunicar com o servidor, tente novamente mais tarde
-        """, preferredStyle: .alert)
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            let alert = UIAlertController(title: "Sem Conexão", message: """
+                Houve um erro ao tentar se comunicar com o servidor, tente novamente mais tarde
+            """, preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            self?.present(alert, animated: true, completion: nil)
+        }
     }
     
     func received(message: ZapMessage) {
-        print(message.content)
-        let friend = self.friends.filter({ $0.name == message.sender }).first
-        if let friend = friend {
-            friend.messages.append(message)
-        } else {
-            self.friends.insert(ZapUser(name: message.sender, messages: [message]), at: 0)
+        DispatchQueue.main.async { [weak self] in
+            let friend = self?.friends.filter({ $0.name == message.sender }).first
+            if let friend = friend {
+                friend.messages.append(message)
+            } else {
+                self?.friends.insert(ZapUser(name: message.sender, messages: [message]), at: 0)
+            }
+            self?.detailViewController?.chatTableView.reloadData()
+            self?.tableView.reloadData()
         }
-        self.detailViewController?.chatTableView.reloadData()
-        self.tableView.reloadData()
     }
     
     func requestUserName(_ message: String, _ cancelButton: Bool = false, _ completion: @escaping (String) -> Void) {
@@ -96,6 +138,7 @@ class MasterViewController: UITableViewController, ServerDelegate {
 
     @objc
     func insertNewZapFriend(_ sender: Any) {
+        if me == nil { return }
         requestUserName("Digite o apelido de quem vc deseja conversar", true) { name in
             self.friends.insert(ZapUser(name: name, messages: []), at: 0)
             let indexPath = IndexPath(row: 0, section: 0)
@@ -112,6 +155,7 @@ class MasterViewController: UITableViewController, ServerDelegate {
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
                 controller.me = me
                 controller.friend = friend
+                controller.contatosTableView = tableView
                 controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
                 detailViewController = controller

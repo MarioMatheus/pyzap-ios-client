@@ -13,6 +13,8 @@ class DetailViewController: UIViewController, UITableViewDataSource {
     @IBOutlet weak var chatTableView: UITableView!
     @IBOutlet weak var messageTextField: UITextField!
     
+    var contatosTableView: UITableView?
+    
     var me: ZapUser?
     var friend: ZapUser? {
         didSet {
@@ -45,6 +47,7 @@ class DetailViewController: UIViewController, UITableViewDataSource {
             me.messages.append(zapMessage)
             friend.messages.append(zapMessage)
             chatTableView.reloadData()
+            contatosTableView?.reloadData()
             chatTableView.scrollToRow(at: [0, friend.messages.count - 1], at: .top, animated: true)
             messageTextField.text = ""
         }

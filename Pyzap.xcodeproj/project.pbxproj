@@ -68,13 +68,13 @@
 				F21EB67824DE25F600DDE29D /* SceneDelegate.swift */,
 				F21EB67A24DE25F600DDE29D /* MasterViewController.swift */,
 				F21EB67C24DE25F600DDE29D /* DetailViewController.swift */,
+				F21EB69124DE53F600DDE29D /* MessageTableViewCell.swift */,
+				F21EB68F24DE38BF00DDE29D /* Models.swift */,
+				F21EB69324DE762500DDE29D /* ServerManager.swift */,
 				F21EB67E24DE25F600DDE29D /* Main.storyboard */,
 				F21EB68124DE25F800DDE29D /* Assets.xcassets */,
 				F21EB68324DE25F800DDE29D /* LaunchScreen.storyboard */,
 				F21EB68624DE25F800DDE29D /* Info.plist */,
-				F21EB68F24DE38BF00DDE29D /* Models.swift */,
-				F21EB69124DE53F600DDE29D /* MessageTableViewCell.swift */,
-				F21EB69324DE762500DDE29D /* ServerManager.swift */,
 			);
 			path = Pyzap;
 			sourceTree = "<group>";
